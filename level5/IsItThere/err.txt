@@ -1,0 +1,11 @@
+QMetaObject::connectSlotsByName: No matching signal for on_advAudioProps_clicked()
+QMetaObject::connectSlotsByName: No matching signal for on_advAudioProps_destroyed()
+QMetaObject::connectSlotsByName: No matching signal for on_actionGridMode_triggered()
+QMetaObject::connectSlotsByName: No matching signal for on_program_customContextMenuRequested(QPoint)
+QMetaObject::connectSlotsByName: No matching signal for on_transitionRemove_clicked()
+libDeckLinkAPI.so: cannot open shared object file: No such file or directory
+error: os_dlopen(libnvidia-encode.so.1->libnvidia-encode.so.1): libnvidia-encode.so.1: cannot open shared object file: No such file or directory
+
+error: os_dlopen(libvlc.so.5->libvlc.so.5): libvlc.so.5: cannot open shared object file: No such file or directory
+
+"/proc/2840369/root"

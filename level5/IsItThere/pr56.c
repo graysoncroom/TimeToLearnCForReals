@@ -2,6 +2,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h> //open
+#include <stdarg.h>
 
 const char *filename = "pr56.dat";
 
@@ -63,39 +64,44 @@ int stoi(const char *str) {
 	return is_negative ? -sum : sum;
 }
 
-void get_nth_word(const char *buf, int s_idx, int e_idx, int nth, char *word) {
-	int word_idx = 0;
+// contract: default_str is null-terminated and len(copy_into_str) >= len(default_str)
+void fill_with_default_str(char * const default_str, char * const copy_into_str) {
+	int i;
+	for (i=0; default_str[i] != '\0'; i++) {
+		copy_into_str[i] = default_str[i];
+	}
+	copy_into_str[i] = '\0';
+}
 
+// when n is greater than the number of words in the line shit gets weird...
+// consider that e_idx is too large
+// Let "word" in "get_nth_word" be defined to be made of the characters: 
+// buf[s_idx], buf[s_idx+1], ..., buf[e_idx]
+void get_nth_word(const char *buf, int s_idx, int e_idx, int nth, char *word) {
 	char not_there_str[] = "NOT THERE";
 
 	if (nth < 0) {
-		for (int i=0; not_there_str[i] != '\0'; i++) {
-			word[i] = not_there_str[i];
-		}
+		fill_with_default_str(not_there_str, word);
 		return;
 	}
 
-	while (s_idx < e_idx && word_idx != nth) {
+	int word_idx = 0; // current word we're "on"
+	while (s_idx <= e_idx) {
 		if (buf[s_idx] == ' ') {
 			word_idx++;
 		}
-		else if (buf[s_idx] == '\n') {
-			word_idx++;
-			if (word_idx > nth) {
-				for (int i=0; not_there_str[i] != '\0'; i++) {
-					word[i] = not_there_str[i];
-				}
-				return;
+		else if (word_idx == nth) {
+			int i = 0;
+			while (buf[s_idx] != ' ' && buf[s_idx] != '\n') {
+				word[i] = buf[s_idx];
+				i++;
+				s_idx++;
 			}
+			return;
 		}
 		s_idx++;
 	}
-	int i = 0;
-	while (buf[s_idx] != ' ') {
-		word[i] = buf[s_idx];
-		i++;
-		s_idx++;
-	}
+	fill_with_default_str(not_there_str, word);
 }
 
 struct pair {
@@ -118,7 +124,7 @@ int main(int argc, char **argv) {
 	struct stat sb;
 	fstat(fd, &sb);
 
-	if (sb.st_size > 90000000) { // TODO: multiple of 2 at some point
+	if (sb.st_size > 1048576) { // 2^20 = 1048576
 		errln("I refuse.");
 	}
 
@@ -130,9 +136,11 @@ int main(int argc, char **argv) {
 		return EXIT_CODE_ERR;
 	}
 
-	// TODO: err check the read
-	read(fd, buffer, sb.st_size);
-
+	if (read(fd, buffer, sb.st_size) == -1) {
+		err("Could not read file ");
+		err(filename);
+		errln("");
+	}
 
 	int input_groups_size = sb.st_size / 2 + 1;
 	struct input_group input_groups[input_groups_size];
@@ -167,10 +175,7 @@ int main(int argc, char **argv) {
 		struct input_group current_input_group = input_groups[i];
 		int n = stoi(current_input_group.num_str);
 
-		//printnln(buffer + current_input_group.str_pair.start_index, 
-		//		current_input_group.str_pair.end_index - current_input_group.str_pair.start_index + 1);
-
-		char word[100] = {0};
+		char word[50] = {0};
 
 		get_nth_word(buffer, current_input_group.str_pair.start_index, 
 				current_input_group.str_pair.end_index, n, word);
