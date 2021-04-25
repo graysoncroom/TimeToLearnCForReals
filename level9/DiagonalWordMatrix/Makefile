@@ -1,4 +1,4 @@
 CC := gcc
 
 build_and_run:
-	$(CC) -lmath -o pr91 pr91.c && ./pr91
+	$(CC) -lm -o pr91 pr91.c && ./pr91
